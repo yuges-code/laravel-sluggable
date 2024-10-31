@@ -1,0 +1,24 @@
+{
+    "name": "yuges-code/laravel-sluggable",
+    "description": "Slug generation for Laravel eloquent models",
+    "license": "MIT",
+    "keywords": [
+        "yuges",
+        "laravel-sluggable"
+    ],
+    "authors": [
+        {
+            "name": "Georgy",
+            "email": "goshasafonov@yandex.ru"
+        }
+    ],
+    "require": {
+        "php": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Yuges\\Sluggable\\": "src"
+        }
+    },
+    "minimum-stability": "dev"
+}
