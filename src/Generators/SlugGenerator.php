@@ -2,77 +2,100 @@
 
 namespace Yuges\Sluggable\Generators;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use Yuges\Sluggable\Options\SlugOptions;
-use Yuges\Sluggable\Sluggable;
+use Yuges\Sluggable\Interfaces\Sluggable;
 
 class SlugGenerator
 {
-    protected Model $model;
+    protected Sluggable $model;
 
     protected SlugOptions $options;
 
     public function getSlug(Sluggable $model): string
     {
-        return 'lol';
-    }
+        $this->model = $model;
+        $this->options = $model->sluggable();
 
+        $slug = $this->generateSlug();
 
-    protected function addSlug(): void
-    {
-        $options = $this->sluggable();
-        $slug = $this->generateNonUniqueSlug();
-
-        if ($options->unique) {
+        if ($this->options->unique) {
             $slug = $this->makeSlugUnique($slug);
-        }
-
-        $this->{$options->column} = $slug;
-    }
-
-    protected function makeSlugUnique(string $slug): string
-    {
-        $options = $this->sluggable();
-
-        $originalSlug = $slug;
-        $i = 1;
-
-        while ($this->otherRecordExistsWithSlug($slug) || $slug === '') {
-            $slug = $originalSlug.$options->separator.$i++;
         }
 
         return $slug;
     }
 
-    protected function otherRecordExistsWithSlug(string $slug): bool
+    protected function generateSlug(): string
     {
-        $options = $this->sluggable();
+        $sources = $this->getSlugSources();
 
-        $query = static::where($options->column, $slug);
+        return Str::slug($sources->implode(' '), $this->options->separator);
+    }
 
-        if ($this->usesSoftDeletes()) {
-            $query->withTrashed();
+    protected function getSlugSources(): Collection
+    {
+        $collection = new Collection($this->options->source);
+
+        $sources = $collection->map(function (string $source) {
+            return $this->model->{$source};
+        });
+
+        return $sources->filter();
+    }
+
+
+    protected function makeSlugUnique(string $slug): string
+    {
+        $i = 1;
+        $originalSlug = $slug;
+
+        while ($this->existsSlug($slug) || $slug === '') {
+            $slug = $originalSlug.$this->options->separator.$i++;
         }
 
-        return $query->exists();
+        return $slug;
     }
 
-    protected function usesSoftDeletes(): bool
+    protected function existsSlug(string $slug): bool
     {
-        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this), true);
+        $builder = $this->model->whereSlug($slug);
+
+        return $this->buildQuery($builder, $slug)->getQuery()->exists();
     }
 
-    protected function generateNonUniqueSlug(): string
+    protected function buildQuery(Builder $builder, string $slug): Builder
     {
-        $options = $this->sluggable();
+        $this->buildUnionQuery($builder, $slug);
 
-        return Str::slug($this->getSlugSourceString(), $options->separator);
+        if ($this->usesSoftDeletes($this->model)) {
+            $builder->withTrashed();
+        }
+
+        return $builder;
     }
 
-    protected function getSlugSourceString(): string
+    protected function buildUnionQuery(Builder $builder, string $slug): Builder
     {
-        $options = $this->sluggable();
+        $union = new Collection($this->options->union);
 
-        return $this->{$options->source[0]};
+        $union->each(function (string $model) use ($slug, $builder) {
+            $query = $model::whereSlug($slug);
+
+            if ($this->usesSoftDeletes($model)) {
+                $query->withTrashed();
+            }
+
+            $builder->getQuery()->union($query);
+        });
+
+        return $builder;
+    }
+
+    protected function usesSoftDeletes(string|Sluggable $model): bool
+    {
+        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($model), true);
     }
 }

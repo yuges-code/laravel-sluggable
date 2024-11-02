@@ -12,6 +12,13 @@ class SlugOptions
     public ?string $column = 'slug';
 
     /**
+     * Slug union models
+     *
+     * @var array
+     */
+    public array $union;
+
+    /**
      * Slug source
      *
      * @var array

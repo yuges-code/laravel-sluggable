@@ -2,8 +2,8 @@
 
 namespace Yuges\Sluggable\Observers;
 
+use Yuges\Sluggable\Interfaces\Sluggable;
 use Yuges\Sluggable\Generators\SlugGenerator;
-use Yuges\Sluggable\Sluggable;
 
 class SluggableObserver
 {

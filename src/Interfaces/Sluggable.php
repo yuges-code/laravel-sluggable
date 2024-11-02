@@ -1,9 +1,9 @@
 <?php
 
-namespace Yuges\Sluggable;
+namespace Yuges\Sluggable\Interfaces;
 
-use Illuminate\Database\Eloquent\Builder;
 use Yuges\Sluggable\Options\SlugOptions;
+use Illuminate\Database\Eloquent\Builder;
 
 interface Sluggable
 {
