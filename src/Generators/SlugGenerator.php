@@ -2,11 +2,11 @@
 
 namespace Yuges\Sluggable\Generators;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Yuges\Sluggable\Options\SlugOptions;
 use Yuges\Sluggable\Interfaces\Sluggable;
+use Illuminate\Database\Eloquent\Builder;
 
 class SlugGenerator
 {
@@ -26,6 +26,13 @@ class SlugGenerator
         }
 
         return $slug;
+    }
+
+    public function getSlugs(): Collection
+    {
+        $collection = new Collection();
+
+        return $collection;
     }
 
     protected function generateSlug(): string

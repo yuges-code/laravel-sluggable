@@ -36,6 +36,6 @@ class SluggableObserver
 
         $slug = $this->generator->getSlug($model);
 
-        dd($slug, $event);
+        $model->{$options->column} = $slug;
     }
 }
