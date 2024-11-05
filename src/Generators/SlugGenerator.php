@@ -6,7 +6,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Yuges\Sluggable\Options\SlugOptions;
 use Yuges\Sluggable\Interfaces\Sluggable;
-use Illuminate\Database\Eloquent\Builder;
 
 class SlugGenerator
 {
@@ -14,18 +13,28 @@ class SlugGenerator
 
     protected SlugOptions $options;
 
-    public function getSlug(Sluggable $model): string
+    public function __construct(
+        protected SlugUniqueGenerator $uniqueGenerator
+    ) {
+    }
+
+    public function setModel(Sluggable $model): self
     {
         $this->model = $model;
         $this->options = $model->sluggable();
 
-        $slug = $this->generateSlug();
+        return $this;
+    }
 
-        if ($this->options->unique) {
-            $slug = $this->makeSlugUnique($slug);
+    public function getSlug(Sluggable $model): string
+    {
+        $slug = $this->setModel($model)->generateSlug();
+
+        if (!$this->options->unique) {
+            return $slug;
         }
 
-        return $slug;
+        return $this->uniqueGenerator->makeSlugUnique($model, $slug);
     }
 
     public function getSlugs(): Collection
@@ -51,58 +60,5 @@ class SlugGenerator
         });
 
         return $sources->filter();
-    }
-
-
-    protected function makeSlugUnique(string $slug): string
-    {
-        $i = 1;
-        $originalSlug = $slug;
-
-        while ($this->existsSlug($slug) || $slug === '') {
-            $slug = $originalSlug.$this->options->separator.$i++;
-        }
-
-        return $slug;
-    }
-
-    protected function existsSlug(string $slug): bool
-    {
-        $builder = $this->model->whereSlug($slug);
-
-        return $this->buildQuery($builder, $slug)->getQuery()->exists();
-    }
-
-    protected function buildQuery(Builder $builder, string $slug): Builder
-    {
-        $this->buildUnionQuery($builder, $slug);
-
-        if ($this->usesSoftDeletes($this->model)) {
-            $builder->withTrashed();
-        }
-
-        return $builder;
-    }
-
-    protected function buildUnionQuery(Builder $builder, string $slug): Builder
-    {
-        $union = new Collection($this->options->union);
-
-        $union->each(function (string $model) use ($slug, $builder) {
-            $query = $model::whereSlug($slug);
-
-            if ($this->usesSoftDeletes($model)) {
-                $query->withTrashed();
-            }
-
-            $builder->getQuery()->union($query);
-        });
-
-        return $builder;
-    }
-
-    protected function usesSoftDeletes(string|Sluggable $model): bool
-    {
-        return in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($model), true);
     }
 }
