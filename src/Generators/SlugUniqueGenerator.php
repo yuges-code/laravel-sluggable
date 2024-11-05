@@ -3,24 +3,13 @@
 namespace Yuges\Sluggable\Generators;
 
 use Illuminate\Support\Collection;
-use Yuges\Sluggable\Options\SlugOptions;
 use Yuges\Sluggable\Interfaces\Sluggable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Yuges\Sluggable\Traits\HasSluggableModel;
 
 class SlugUniqueGenerator
 {
-    protected Sluggable $model;
-
-    protected SlugOptions $options;
-
-    public function setModel(Sluggable $model): self
-    {
-        $this->model = $model;
-        $this->options = $model->sluggable();
-
-        return $this;
-    }
+    use HasSluggableModel;
 
     public function makeSlugUnique(Sluggable $model, string $slug = null): string
     {

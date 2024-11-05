@@ -28,8 +28,9 @@ trait HasSlug
     {
         $instance = new static();
         $column = $instance->sluggable()->column;
+        $separator = $instance->sluggable()->separator;
 
-        return static::where($column, '=', $slug)->orWhere($column, 'LIKE', $slug . '%');
+        return static::where($column, '=', $slug)->orWhere($column, 'LIKE', $slug . $separator . '%');
     }
 
     public static function findBySlug(string $slug = null, array $columns = ['*']): ?self

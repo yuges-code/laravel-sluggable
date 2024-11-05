@@ -4,26 +4,17 @@ namespace Yuges\Sluggable\Generators;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
-use Yuges\Sluggable\Options\SlugOptions;
 use Yuges\Sluggable\Interfaces\Sluggable;
+use Yuges\Sluggable\Traits\HasSluggableModel;
 
 class SlugGenerator
 {
-    protected Sluggable $model;
-
-    protected SlugOptions $options;
+    use HasSluggableModel;
 
     public function __construct(
-        protected SlugUniqueGenerator $uniqueGenerator
+        protected SlugUniqueGenerator $uniqueGenerator,
+        protected SlugSuggestionGenerator $suggestionGenerator,
     ) {
-    }
-
-    public function setModel(Sluggable $model): self
-    {
-        $this->model = $model;
-        $this->options = $model->sluggable();
-
-        return $this;
     }
 
     public function getSlug(Sluggable $model): string
@@ -39,9 +30,7 @@ class SlugGenerator
 
     public function getSlugs(): Collection
     {
-        $collection = new Collection();
-
-        return $collection;
+        return $this->suggestionGenerator->getSlugs();
     }
 
     protected function generateSlug(): string
