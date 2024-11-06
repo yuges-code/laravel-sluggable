@@ -43,12 +43,12 @@ class SlugGenerator
 
     protected function getSlugSources(): Collection
     {
-        $collection = new Collection($this->options->source);
+        $collection = collect($this->options->source)->filter()->unique();
 
         $sources = $collection->map(function (string $source) {
             return $this->model->{$source};
         });
 
-        return $sources->filter();
+        return $sources->filter()->unique();
     }
 }

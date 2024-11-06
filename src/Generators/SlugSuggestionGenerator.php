@@ -67,6 +67,6 @@ class SlugSuggestionGenerator
             $collection->push(...explode(' ', $this->model->{$source}));
         });
 
-        return $collection->filter();
+        return $collection->filter()->unique();
     }
 }
