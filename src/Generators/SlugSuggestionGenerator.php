@@ -27,7 +27,7 @@ class SlugSuggestionGenerator
         if ($this->suggestionOptions->unique) {
             $uniqueGenerator = new SlugUniqueGenerator();
 
-            $slugs->map(function (string $slug) use ($model, $uniqueGenerator) {
+            $slugs = $slugs->map(function (string $slug) use ($model, $uniqueGenerator) {
                 return $uniqueGenerator->makeSlugUnique($model, $slug);
             });
         }
