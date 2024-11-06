@@ -9,7 +9,7 @@ class SuggestionOptions
      *
      * @var array
      */
-    public array $source = [];
+    public array $source = ['name', 'title'];
 
     /**
      * Slug separator
@@ -17,6 +17,20 @@ class SuggestionOptions
      * @var array
      */
     public array $separators = ['_', '-'];
+
+    /**
+     * Slug prefix
+     *
+     * @var array
+     */
+    public array $prefix = ['mr', 'sir'];
+
+    /**
+     * Slug suffix
+     *
+     * @var array
+     */
+    public array $suffix = [];
 
     /**
      * Defines uniqueness slug

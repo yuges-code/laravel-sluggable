@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Yuges\Sluggable\Interfaces\Sluggable;
 use Yuges\Sluggable\Traits\HasSluggableModel;
+use Yuges\Sluggable\Options\SuggestionOptions;
 
 class SlugGenerator
 {
@@ -28,9 +29,9 @@ class SlugGenerator
         return $this->uniqueGenerator->makeSlugUnique($model, $slug);
     }
 
-    public function getSlugs(): Collection
+    public function getSlugs(Sluggable $model, SuggestionOptions $options): Collection
     {
-        return $this->suggestionGenerator->getSlugs();
+        return $this->suggestionGenerator->getSlugs($model, $options);
     }
 
     protected function generateSlug(): string
